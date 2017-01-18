@@ -54,5 +54,21 @@ namespace UnitTestProject
             for (int i = 0; i <= order; i++)
                 Assert.Equal(k * dif[h + i], multiplied[h + i]);
         }
+
+        [Fact]
+        // check operator - (unary)
+        public void CheckNegatiation()
+        {
+            // get random order and h
+            int order = new Random().Next(10);
+            int h = new Random().Next(-10, 10);
+            // create FiniteDifference and its negatioaton
+            FiniteDifference difference = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(order, h);
+            FiniteDifference negatioation = -difference;
+            // check MinimumH and coefficients
+            Assert.Equal(difference.MinimumH, negatioation.MinimumH);
+            for (int i = 0; i <= order; i++)
+                Assert.Equal(difference[h + i], -(negatioation[h + i]));
+        }
     }
 }

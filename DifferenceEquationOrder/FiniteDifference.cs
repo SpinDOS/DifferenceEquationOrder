@@ -126,6 +126,11 @@ namespace DifferenceEquationOrder
                 result._coefficients[i] = k * difference._coefficients[i];
             return result;
         }
+        public static FiniteDifference operator *(FiniteDifference difference, double k) => k * difference;
+        public static FiniteDifference operator / (FiniteDifference difference, double k) => (1/k) * difference;
+
+        public static FiniteDifference operator -(FiniteDifference difference) => -1 * difference;
+        public static FiniteDifference operator +(FiniteDifference difference) => difference;
 
         #endregion
     }
