@@ -10,6 +10,7 @@ namespace DifferenceEquationOrder
     {
         static void Main(string[] args)
         {
+            
         }
     }
 }
