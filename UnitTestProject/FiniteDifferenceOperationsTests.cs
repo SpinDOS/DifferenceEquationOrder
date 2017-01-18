@@ -70,5 +70,23 @@ namespace UnitTestProject
             for (int i = 0; i <= order; i++)
                 Assert.Equal(difference[h + i], -(negatioation[h + i]));
         }
+        [Fact]
+        // check summmation
+        public void NoCrossingNoSpaceSummand()
+        {
+            // get two non crossing FiniteDifferences without space
+            FiniteDifference l = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(1, -1);
+            FiniteDifference r = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(2, 1);
+            // sum
+            var sum = l + r;
+            var sum2 = r + l;
+            // check sum
+            Assert.True(sum == sum2);
+            Assert.Equal(1, sum[-1]);
+            Assert.Equal(-1, sum[0]);
+            Assert.Equal(1, sum[1]);
+            Assert.Equal(-2, sum[2]);
+            Assert.Equal(1, sum[3]);
+        }
     }
 }

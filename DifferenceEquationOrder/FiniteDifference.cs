@@ -132,6 +132,24 @@ namespace DifferenceEquationOrder
         public static FiniteDifference operator -(FiniteDifference difference) => -1 * difference;
         public static FiniteDifference operator +(FiniteDifference difference) => difference;
 
+        public static FiniteDifference operator +(FiniteDifference left, FiniteDifference right)
+        {
+            // create FiniteDifference with wide range of h
+            FiniteDifference result = new FiniteDifference();
+            result.MinimumH = Math.Min(left.MinimumH, right.MinimumH);
+            result.MaximumH = Math.Max(left.MaximumH, right.MaximumH);
+            // calculate order
+            result.Order = left.Order + right.Order + 1;
+            result._coefficients = new double[result.Order + 1];
+
+            // copy values from operands
+            for (int i = left.MinimumH; i <= left.MaximumH; i++)
+                result[i] = left[i];
+            for (int i = right.MinimumH; i <= right.MaximumH; i++)
+                result[i] = right[i];
+            return result;
+        }
+
         #endregion
     }
 }
