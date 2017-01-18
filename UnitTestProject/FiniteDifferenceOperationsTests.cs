@@ -1,4 +1,5 @@
-﻿using DifferenceEquationOrder;
+﻿using System;
+using DifferenceEquationOrder;
 using Xunit;
 
 namespace UnitTestProject
@@ -34,6 +35,24 @@ namespace UnitTestProject
             // create same FiniteDifference
             l = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(2, 1);
             Assert.True(l == r);
+        }
+
+        [Theory]
+        [InlineData(0, 3)]
+        [InlineData(1, 7)]
+        [InlineData(2, 1)]
+        [InlineData(5, -7)]
+        // check multiplication
+        public void CheckMultiply(int order, int h)
+        {
+            // get first FiniteDifference
+            var dif = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(order, h);
+            double k = new Random().NextDouble();
+            // et multiplied FiniteDifference
+            var multiplied = k * dif;
+            Assert.Equal(dif.MinimumH, multiplied.MinimumH);
+            for (int i = 0; i <= order; i++)
+                Assert.Equal(k * dif[h + i], multiplied[h + i]);
         }
     }
 }

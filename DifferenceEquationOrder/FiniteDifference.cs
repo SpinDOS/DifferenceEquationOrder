@@ -113,6 +113,20 @@ namespace DifferenceEquationOrder
         }
         public override int GetHashCode() => MinimumH ^ _coefficients.GetHashCode();
 
+        public static FiniteDifference operator *(double k, FiniteDifference difference)
+        {
+            // copy difference
+            FiniteDifference result = new FiniteDifference();
+            result.MinimumH = difference.MinimumH;
+            result.MaximumH = difference.MaximumH;
+            result.Order = difference.Order;
+            // copy coefficients multiplied on k
+            result._coefficients = new double[difference._coefficients.Length];
+            for (int i = 0; i < result._coefficients.Length; i++)
+                result._coefficients[i] = k * difference._coefficients[i];
+            return result;
+        }
+
         #endregion
     }
 }
