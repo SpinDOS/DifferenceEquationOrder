@@ -139,16 +139,18 @@ namespace DifferenceEquationOrder
             result.MinimumH = Math.Min(left.MinimumH, right.MinimumH);
             result.MaximumH = Math.Max(left.MaximumH, right.MaximumH);
             // calculate order
-            result.Order = left.Order + right.Order + 1;
+            result.Order = result.MaximumH - result.MinimumH;
             result._coefficients = new double[result.Order + 1];
 
             // copy values from operands
             for (int i = left.MinimumH; i <= left.MaximumH; i++)
-                result[i] = left[i];
+                result[i] += left[i];
             for (int i = right.MinimumH; i <= right.MaximumH; i++)
-                result[i] = right[i];
+                result[i] += right[i];
             return result;
         }
+
+        public static FiniteDifference operator -(FiniteDifference left, FiniteDifference right) => left + (-right);
 
         #endregion
     }

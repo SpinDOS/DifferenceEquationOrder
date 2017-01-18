@@ -71,7 +71,7 @@ namespace UnitTestProject
                 Assert.Equal(difference[h + i], -(negatioation[h + i]));
         }
         [Fact]
-        // check summmation
+        // check summmation without crossing operands
         public void NoCrossingNoSpaceSummand()
         {
             // get two non crossing FiniteDifferences without space
@@ -82,8 +82,51 @@ namespace UnitTestProject
             var sum2 = r + l;
             // check sum
             Assert.True(sum == sum2);
+            Assert.Equal(4, sum.Order);
+
             Assert.Equal(1, sum[-1]);
             Assert.Equal(-1, sum[0]);
+            Assert.Equal(1, sum[1]);
+            Assert.Equal(-2, sum[2]);
+            Assert.Equal(1, sum[3]);
+        }
+
+        [Fact]
+        // check summmation with crossing operands
+        public void CrossingSummands()
+        {
+            // get two crossing FiniteDifferences
+            FiniteDifference l = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(3, -1);
+            FiniteDifference r = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(2, 1);
+            // sum
+            var sum = l + r;
+            // check sum
+            Assert.Equal(4, sum.Order);
+
+            Assert.Equal(1, sum[-1]);
+            Assert.Equal(-3, sum[0]);
+            Assert.Equal(3+1, sum[1]);
+            Assert.Equal(-1-2, sum[2]);
+            Assert.Equal(1, sum[3]);
+        }
+
+        [Fact]
+        // check summmation with crossing operands
+        public void WithSpacingSummands()
+        {
+            // get two FiniteDifferences with space between them
+            FiniteDifference l = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(3, -4);
+            FiniteDifference r = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(2, 1);
+            // sum
+            var sum = l + r;
+            // check sum
+            Assert.Equal(7, sum.Order);
+
+            Assert.Equal(1, sum[-4]);
+            Assert.Equal(-3, sum[-3]);
+            Assert.Equal(3, sum[-2]);
+            Assert.Equal(-1, sum[-1]);
+            Assert.Equal(0, sum[0]);
             Assert.Equal(1, sum[1]);
             Assert.Equal(-2, sum[2]);
             Assert.Equal(1, sum[3]);
