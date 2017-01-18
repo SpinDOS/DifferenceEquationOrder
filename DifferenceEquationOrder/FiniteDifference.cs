@@ -87,5 +87,32 @@ namespace DifferenceEquationOrder
         }
 
         #endregion
+
+        #region Operations overload
+
+        public static bool operator ==(FiniteDifference left, FiniteDifference right)
+        {
+            // if argument if null
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                throw new NullReferenceException("Comparing null object");
+            // check order and minimumH
+            if (left.Order != right.Order || left.MinimumH != right.MinimumH)
+                return false;
+            // check coefficients
+            return left._coefficients.SequenceEqual(right._coefficients);
+        }
+
+        public static bool operator !=(FiniteDifference left, FiniteDifference right) => !(left == right);
+        public override bool Equals(object obj)
+        {
+            // check if the object is FiniteDifference
+            var difference = obj as FiniteDifference;
+            if (difference == null)
+                return false;
+            return this == difference;
+        }
+        public override int GetHashCode() => MinimumH ^ _coefficients.GetHashCode();
+
+        #endregion
     }
 }

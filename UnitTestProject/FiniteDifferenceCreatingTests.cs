@@ -4,6 +4,7 @@ using Xunit;
 
 namespace UnitTestProject
 {
+    // test FiniteDifference creating
     public class FiniteDifferenceCreatingTests
     {
         [Theory]
