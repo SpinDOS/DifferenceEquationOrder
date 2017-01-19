@@ -236,5 +236,88 @@ namespace DifferenceEquationOrder
         }
 
         #endregion
+
+        #region String parsing
+
+        /// <summary>
+        /// Convert a string representation of a FiniteDifference
+        /// </summary>
+        /// <param name="s">A string containing a FiniteDifference to convert</param>
+        /// <exception cref="FormatException">Invalid format of a FiniteDifference</exception>
+        public static FiniteDifference Parse(string s)
+        {
+            FiniteDifference result;
+            if (!TryParse(s, out result))
+                throw new FormatException("Input string was not in a correct format");
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a string representation of a FiniteDifference. 
+        /// A return value indicated whether the conversion succeeded
+        /// </summary>
+        /// <param name="s">A string containing a FiniteDifference to convert</param>
+        /// <param name="result">When this method returns, contains the 
+        /// FiniteDifference equivalent of the FiniteDifference contained in s, 
+        /// if the conversion succeeded, or null if s does not contain valid FiniteDifference</param>
+        public static bool TryParse(string s, out FiniteDifference result)
+        {
+            result = null;
+            // if no data to parse - nonFiniteDifference object
+            if (string.IsNullOrWhiteSpace(s))
+                return true;
+
+            int order = 0, h;
+            string sArg = s.Substring(1); // remove u
+
+            // parsing argumnet of u
+            // **************************************************************************************************
+
+            // check if sArg contains two separated numbers because they will be conctatenated after replace(" ", "")
+            int i = 0;
+            // find first number
+            while (i < sArg.Length && !char.IsDigit(sArg[i]))
+                i++;
+            // skip first number
+            while (i < sArg.Length && char.IsDigit(sArg[i]))
+                i++;
+            // check end of string
+            while (i < sArg.Length)
+                if (char.IsDigit(sArg[i++])) // if found second number
+                    return false;
+
+            sArg = sArg.Replace(" ", ""); // remove all spaces
+
+            if (sArg == "(x)") // if h = 0 
+                h = 0;
+            else if (!sArg.StartsWith("(x") || !sArg.EndsWith("h)")) // if format error
+                return false;
+            else
+            {
+                string arg = sArg.Substring(2, sArg.Length - 4); // remove (x and h)
+                // arg is + or - or +n or -n or +n* or -n*
+                if (arg == "+")
+                    h = 1;
+                else if (arg == "-")
+                    h = -1;
+                else // arg is +n or -n or +n* or -n*
+                {
+                    if (arg.Length == 0 || (arg[0] != '+' && arg[0] != '-')) // check for (x2*h)
+                        return false;
+                    if (arg.EndsWith("*")) // remove last *
+                        arg = arg.Remove(arg.Length - 1);
+                    // arg is +n or -n
+                    if (!int.TryParse(arg, out h)) // parse n to h
+                        return false;
+                }
+            }
+
+
+
+            result = GetFiniteDifferenceByOrderAndMinH(order, h);
+            return true;
+        }
+
+        #endregion
     }
 }

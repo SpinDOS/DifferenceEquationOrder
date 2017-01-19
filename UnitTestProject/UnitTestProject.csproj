@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="FiniteDifferenceCreatingTests.cs" />
     <Compile Include="FiniteDifferenceOperationsTests.cs" />
+    <Compile Include="FiniteDifferenceParsingTests.cs" />
     <Compile Include="OrderCountTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
