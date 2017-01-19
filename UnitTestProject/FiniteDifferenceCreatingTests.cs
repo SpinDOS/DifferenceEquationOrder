@@ -38,6 +38,7 @@ namespace UnitTestProject
         }
 
         #region Checking coefficients
+
         // check created coefficients of the FiniteDifference with custom order and random minimumH
 
         [Fact]
@@ -48,6 +49,7 @@ namespace UnitTestProject
             FiniteDifference dif = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(0, minh);
             Assert.Equal(1, dif[minh]);
         }
+
         [Fact]
         // order = 1
         public void CheckCoefsOrder1()
@@ -84,5 +86,22 @@ namespace UnitTestProject
         }
 
         #endregion
+
+
+        [Fact]
+        // check format of FiniteDifference.ToString() 
+        public void CheckToString()
+        {
+            // check zero in the middle and signs and (x+h)
+            FiniteDifference difference = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(3, -2) - 
+                3*FiniteDifference.GetFiniteDifferenceByOrderAndMinH(0, -1);
+            string goodString = "u(x+h)-3*u(x)-u(x-2*h)";
+            Assert.Equal(goodString, difference.ToString());
+
+            // check leading -, (x-h), (x+2*h)
+            difference = -2 * FiniteDifference.GetFiniteDifferenceByOrderAndMinH(3, -1);
+            goodString = "-2*u(x+2*h)+6*u(x+h)-6*u(x)+2*u(x-h)";
+            Assert.Equal(goodString, difference.ToString());
+        }
     }
 }

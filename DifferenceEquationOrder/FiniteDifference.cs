@@ -108,15 +108,6 @@ namespace DifferenceEquationOrder
         }
 
         public static bool operator !=(FiniteDifference left, FiniteDifference right) => !(left == right);
-        public override bool Equals(object obj)
-        {
-            // check if the object is FiniteDifference
-            var difference = obj as FiniteDifference;
-            if (difference == null)
-                return false;
-            return this == difference;
-        }
-        public override int GetHashCode() => MinimumH ^ _coefficients.GetHashCode();
 
         public static FiniteDifference operator *(double k, FiniteDifference difference)
         {
@@ -194,6 +185,55 @@ namespace DifferenceEquationOrder
         }
 
         public static FiniteDifference operator -(FiniteDifference left, FiniteDifference right) => left + (-right);
+
+        #endregion
+
+        #region Object methods override
+
+        public override int GetHashCode() => MinimumH ^ _coefficients.GetHashCode();
+
+        public override bool Equals(object obj)
+        {
+            // check if the object is FiniteDifference
+            var difference = obj as FiniteDifference;
+            if (difference == null)
+                return false;
+            return this == difference;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder result = new StringBuilder();
+            // handle every h section with coefficient starting from maximumH
+            for (int i = MaximumH; i >= MinimumH; i--)
+            {
+                // set up coefficient formatting
+                double k = this[i];
+                if (k.IsZero()) // 0
+                    continue;
+                else if ((k - 1).IsZero()) // 1
+                    result.Append("+u");
+                else if ((k+1).IsZero()) // -1
+                    result.Append("-u");
+                else // +-2
+                    result.Append($"{k:+#;-#}*u");
+
+                // set up h formatting
+                if (i == 0) // 0
+                    result.Append("(x)");
+                else if (i == 1) // 1
+                    result.Append("(x+h)");
+                else if (i == -1) // -1
+                    result.Append("(x-h)");
+                else // +-2
+                    result.Append($"(x{i:+#;-#}*h)");
+            }
+
+            // remove starting +
+            if (result[0] == '+')
+                result.Remove(0, 1);
+            return result.ToString();
+        }
 
         #endregion
     }
