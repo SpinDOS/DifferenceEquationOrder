@@ -138,15 +138,42 @@ namespace DifferenceEquationOrder
             FiniteDifference result = new FiniteDifference();
             result.MinimumH = Math.Min(left.MinimumH, right.MinimumH);
             result.MaximumH = Math.Max(left.MaximumH, right.MaximumH);
-            // calculate order
-            result.Order = result.MaximumH - result.MinimumH;
-            result._coefficients = new double[result.Order + 1];
+            // create array for coefficients
+            result._coefficients = new double[result.MaximumH - result.MinimumH + 1];
 
             // copy values from operands
             for (int i = left.MinimumH; i <= left.MaximumH; i++)
                 result[i] += left[i];
             for (int i = right.MinimumH; i <= right.MaximumH; i++)
                 result[i] += right[i];
+            
+            // cut order if got zero coefficients
+
+            // move left divider until non-zero or end of array
+            int l = result.MinimumH;
+            while (result[l].IsZero())
+            {
+                if (l == result.MaximumH)
+                    throw new ArgumentException("Sum is not FiniteDifference");
+                else
+                    l++;
+            }
+
+            // move right divider until non-zero
+            int r = result.MaximumH;
+            while (result[r].IsZero())
+                r--;
+
+            // change coefficients array
+            double[] newCoefficients = new double[r - l + 1];
+            Array.Copy(result._coefficients, l-result.MinimumH, newCoefficients, 0, newCoefficients.Length);
+            result._coefficients = newCoefficients;
+
+            // save result parameters
+            result.MinimumH = l;
+            result.MaximumH = r;
+            result.Order = r - l;
+
             return result;
         }
 
