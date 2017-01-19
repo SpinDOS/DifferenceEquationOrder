@@ -11,6 +11,11 @@ namespace DifferenceEquationOrder
     /// </summary>
     public sealed class FiniteDifference
     {
+        /// <summary>
+        /// Maximum allowed order of the FiniteDifference
+        /// </summary>
+        public const int MaxOrder = 5000;
+
         #region Private members
 
         // array of coefficients of the difference
@@ -56,7 +61,8 @@ namespace DifferenceEquationOrder
         /// Create finite difference d^(order) u(x)
         /// </summary>
         /// <param name="order">Order of the finite difference</param>
-        /// <returns></returns>
+        /// /// <exception cref="OverflowException">The exception is thrown when trying 
+        /// to create FiniteDifference with too large order</exception>
         public static FiniteDifference GetFiniteDifferenceByOrder(int order)
             => GetFiniteDifferenceByOrderAndMinH(order, 0);
 
@@ -65,17 +71,20 @@ namespace DifferenceEquationOrder
         /// </summary>
         /// <param name="order">Order of the finite difference</param>
         /// <param name="minH">Count of h of the finite difference</param>
-        /// <returns></returns>
+        /// <exception cref="OverflowException">The exception is thrown when trying 
+        /// to create FiniteDifference with too large order and minH</exception>
         public static FiniteDifference GetFiniteDifferenceByOrderAndMinH(int order, int minH)
         {
             // check parameters
             if (order < 0)
                 return null;
+            if (order > MaxOrder)
+                throw new OverflowException("Can not create FiniteDifference. Order is too large");
             // set up FiniteDifference
             FiniteDifference result = new FiniteDifference();
             result.Order = order;
             result.MinimumH = minH;
-            result.MaximumH = minH + order;
+            result.MaximumH = checked (minH + order);
             // get coefficients from PascalTriangle
             result._coefficients = PascalTriangle.GetCoefficients(order).Select((x, i) =>
             { // cast uing to double and make non-even numbers negative
@@ -244,12 +253,87 @@ namespace DifferenceEquationOrder
         /// </summary>
         /// <param name="s">A string containing a FiniteDifference to convert</param>
         /// <exception cref="FormatException">Invalid format of a FiniteDifference</exception>
+        /// <exception cref="OverflowException">The exception is thrown when s contains FiniteDifference 
+        /// but can not create FiniteDifference due to too large order or MinimumH</exception>
         public static FiniteDifference Parse(string s)
         {
-            FiniteDifference result;
-            if (!TryParse(s, out result))
-                throw new FormatException("Input string was not in a correct format");
-            return result;
+            FormatException formatException = new FormatException("Input string was not in a correct format");
+            if (string.IsNullOrWhiteSpace(s))
+                return null;
+
+            int order, h;
+            var parts = s.ToLower().Split(new char[] { 'u' }, StringSplitOptions.None);
+            if (parts.Length != 2)
+                throw formatException;
+
+            // parsing order
+            // **************************************************************************************************
+
+            string sOrder = parts[0].Trim();
+            if (string.IsNullOrEmpty(sOrder)) // u(x)
+                order = 0;
+            else if (sOrder == "d") // du(x)
+                order = 1;
+            else
+            {
+                if (!sOrder.StartsWith("d")) // check for dnu, d^nu
+                    throw formatException;
+                sOrder = sOrder.Substring(1).TrimStart(); // remove d
+                // now ^n or n
+                if (sOrder.StartsWith("^"))
+                    sOrder = sOrder.Substring(1).TrimStart(); // remove ^
+
+                // parse n
+                order = int.Parse(sOrder);
+            }
+
+            // parsing argumnet of u
+            // **************************************************************************************************
+
+            string sArg = parts[1];
+
+            // check if sArg contains two separated numbers because they will be conctatenated after replace(" ", "")
+            int i = 0;
+            // find first number
+            while (i < sArg.Length && !char.IsDigit(sArg[i]))
+                i++;
+            // skip first number
+            while (i < sArg.Length && char.IsDigit(sArg[i]))
+                i++;
+            // check end of string
+            while (i < sArg.Length)
+                if (char.IsDigit(sArg[i++])) // if found second number
+                    throw formatException;
+
+            sArg = sArg.Replace(" ", ""); // remove all spaces
+
+            if (sArg == "(x)") // if h = 0 
+                h = 0;
+            else if (!sArg.StartsWith("(x") || !sArg.EndsWith("h)")) // if format error
+                throw formatException;
+            else
+            {
+                string arg = sArg.Substring(2, sArg.Length - 4); // remove (x and h)
+                // arg is + or - or +n or -n or +n* or -n*
+                if (arg == "+")
+                    h = 1;
+                else if (arg == "-")
+                    h = -1;
+                else // arg is +n or -n or +n* or -n*
+                {
+                    if (arg.Length == 0 || (arg[0] != '+' && arg[0] != '-')) // check for (x2*h)
+                        throw formatException;
+                    if (arg.EndsWith("*")) // remove last *
+                        arg = arg.Remove(arg.Length - 1);
+                    // arg is +n or -n
+                    // parse n to h
+                    h = int.Parse(arg);
+                }
+            }
+
+
+            // create FiniteDifference
+            return GetFiniteDifferenceByOrderAndMinH(order, h);
         }
 
         /// <summary>
@@ -263,59 +347,15 @@ namespace DifferenceEquationOrder
         public static bool TryParse(string s, out FiniteDifference result)
         {
             result = null;
-            // if no data to parse - nonFiniteDifference object
-            if (string.IsNullOrWhiteSpace(s))
-                return true;
-
-            int order = 0, h;
-            string sArg = s.Substring(1); // remove u
-
-            // parsing argumnet of u
-            // **************************************************************************************************
-
-            // check if sArg contains two separated numbers because they will be conctatenated after replace(" ", "")
-            int i = 0;
-            // find first number
-            while (i < sArg.Length && !char.IsDigit(sArg[i]))
-                i++;
-            // skip first number
-            while (i < sArg.Length && char.IsDigit(sArg[i]))
-                i++;
-            // check end of string
-            while (i < sArg.Length)
-                if (char.IsDigit(sArg[i++])) // if found second number
-                    return false;
-
-            sArg = sArg.Replace(" ", ""); // remove all spaces
-
-            if (sArg == "(x)") // if h = 0 
-                h = 0;
-            else if (!sArg.StartsWith("(x") || !sArg.EndsWith("h)")) // if format error
-                return false;
-            else
+            try
             {
-                string arg = sArg.Substring(2, sArg.Length - 4); // remove (x and h)
-                // arg is + or - or +n or -n or +n* or -n*
-                if (arg == "+")
-                    h = 1;
-                else if (arg == "-")
-                    h = -1;
-                else // arg is +n or -n or +n* or -n*
-                {
-                    if (arg.Length == 0 || (arg[0] != '+' && arg[0] != '-')) // check for (x2*h)
-                        return false;
-                    if (arg.EndsWith("*")) // remove last *
-                        arg = arg.Remove(arg.Length - 1);
-                    // arg is +n or -n
-                    if (!int.TryParse(arg, out h)) // parse n to h
-                        return false;
-                }
+                result = Parse(s);
+                return true;
             }
-
-
-
-            result = GetFiniteDifferenceByOrderAndMinH(order, h);
-            return true;
+            catch (Exception e) when (e is OverflowException || e is FormatException)
+            {
+                return false;
+            }
         }
 
         #endregion
