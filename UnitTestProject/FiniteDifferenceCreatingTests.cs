@@ -54,8 +54,8 @@ namespace UnitTestProject
         {
             int minh = new Random().Next(-10, 10);
             FiniteDifference dif = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(1, minh);
-            Assert.Equal(1, dif[minh]);
-            Assert.Equal(-1, dif[minh + 1]);
+            Assert.Equal(-1, dif[minh]);
+            Assert.Equal(1, dif[minh + 1]);
         }
 
         [Fact]
@@ -75,12 +75,12 @@ namespace UnitTestProject
         {
             int minh = new Random().Next(-10, 10);
             FiniteDifference dif = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(5, minh);
-            Assert.Equal(1, dif[minh]);
-            Assert.Equal(-5, dif[minh + 1]);
-            Assert.Equal(10, dif[minh + 2]);
-            Assert.Equal(-10, dif[minh + 3]);
-            Assert.Equal(5, dif[minh + 4]);
-            Assert.Equal(-1, dif[minh + 5]);
+            Assert.Equal(-1, dif[minh]);
+            Assert.Equal(5, dif[minh + 1]);
+            Assert.Equal(-10, dif[minh + 2]);
+            Assert.Equal(10, dif[minh + 3]);
+            Assert.Equal(-5, dif[minh + 4]);
+            Assert.Equal(1, dif[minh + 5]);
         }
 
         #endregion

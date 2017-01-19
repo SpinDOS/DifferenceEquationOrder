@@ -47,7 +47,7 @@ namespace UnitTestProject
         {
             // get first FiniteDifference
             var dif = FiniteDifference.GetFiniteDifferenceByOrderAndMinH(order, h);
-            double k = new Random().NextDouble();
+            double k = 1.0 / new Random().Next(2, 5000);
             // et multiplied FiniteDifference
             var multiplied = k * dif;
             Assert.Equal(dif.MinimumH, multiplied.MinimumH);
@@ -84,8 +84,8 @@ namespace UnitTestProject
             Assert.True(sum == sum2);
             Assert.Equal(4, sum.Order);
 
-            Assert.Equal(1, sum[-1]);
-            Assert.Equal(-1, sum[0]);
+            Assert.Equal(-1, sum[-1]);
+            Assert.Equal(1, sum[0]);
             Assert.Equal(1, sum[1]);
             Assert.Equal(-2, sum[2]);
             Assert.Equal(1, sum[3]);
@@ -103,10 +103,10 @@ namespace UnitTestProject
             // check sum
             Assert.Equal(4, sum.Order);
 
-            Assert.Equal(1, sum[-1]);
-            Assert.Equal(-3, sum[0]);
-            Assert.Equal(3+1, sum[1]);
-            Assert.Equal(-1-2, sum[2]);
+            Assert.Equal(-1, sum[-1]);
+            Assert.Equal(3, sum[0]);
+            Assert.Equal(-3+1, sum[1]);
+            Assert.Equal(1-2, sum[2]);
             Assert.Equal(1, sum[3]);
         }
 
@@ -122,10 +122,10 @@ namespace UnitTestProject
             // check sum
             Assert.Equal(7, sum.Order);
 
-            Assert.Equal(1, sum[-4]);
-            Assert.Equal(-3, sum[-3]);
-            Assert.Equal(3, sum[-2]);
-            Assert.Equal(-1, sum[-1]);
+            Assert.Equal(-1, sum[-4]);
+            Assert.Equal(3, sum[-3]);
+            Assert.Equal(-3, sum[-2]);
+            Assert.Equal(1, sum[-1]);
             Assert.Equal(0, sum[0]);
             Assert.Equal(1, sum[1]);
             Assert.Equal(-2, sum[2]);

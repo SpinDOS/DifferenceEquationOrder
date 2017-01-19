@@ -70,7 +70,7 @@ namespace DifferenceEquationOrder
         {
             // check parameters
             if (order < 0)
-                throw new ArgumentException("Finite difference order can not be less than zero");
+                return null;
             // set up FiniteDifference
             FiniteDifference result = new FiniteDifference();
             result.Order = order;
@@ -78,11 +78,11 @@ namespace DifferenceEquationOrder
             result.MaximumH = minH + order;
             // get coefficients from PascalTriangle
             result._coefficients = PascalTriangle.GetCoefficients(order).Select((x, i) =>
-            { // cast uing to double and make even numbers negative
+            { // cast uing to double and make non-even numbers negative
                 if (i % 2 == 0)
                     return (double) x;
                 return -(double) x;
-            }).ToArray();
+            }).Reverse().ToArray();
             return result;
         }
 
@@ -92,9 +92,14 @@ namespace DifferenceEquationOrder
 
         public static bool operator ==(FiniteDifference left, FiniteDifference right)
         {
-            // if argument if null
+            // if both are null or the same object
+            if (ReferenceEquals(left, right))
+                return true;
+            // if only one is null
             if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-                throw new NullReferenceException("Comparing null object");
+                return false;
+            // if both are not null
+
             // check order and minimumH
             if (left.Order != right.Order || left.MinimumH != right.MinimumH)
                 return false;
@@ -115,6 +120,9 @@ namespace DifferenceEquationOrder
 
         public static FiniteDifference operator *(double k, FiniteDifference difference)
         {
+            // on multiplication by zero or not FiniteDifference - not FiniteDifference
+            if (ReferenceEquals(difference, null) || k.IsZero())
+                return null;
             // copy difference
             FiniteDifference result = new FiniteDifference();
             result.MinimumH = difference.MinimumH;
@@ -134,6 +142,13 @@ namespace DifferenceEquationOrder
 
         public static FiniteDifference operator +(FiniteDifference left, FiniteDifference right)
         {
+            // if one of the operands is null - return another
+            if (ReferenceEquals(left, null))
+                return right;
+            if (ReferenceEquals(right, null))
+                return left;
+            // if both are not null
+
             // create FiniteDifference with wide range of h
             FiniteDifference result = new FiniteDifference();
             result.MinimumH = Math.Min(left.MinimumH, right.MinimumH);
@@ -153,8 +168,9 @@ namespace DifferenceEquationOrder
             int l = result.MinimumH;
             while (result[l].IsZero())
             {
+                // if all coefficients are zeros
                 if (l == result.MaximumH)
-                    throw new ArgumentException("Sum is not FiniteDifference");
+                    return null;
                 else
                     l++;
             }
