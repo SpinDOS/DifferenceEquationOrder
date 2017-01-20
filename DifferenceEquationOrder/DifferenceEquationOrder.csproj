@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DifferenceExpressionEvaluator.cs" />
     <Compile Include="DoubleIsZeroExtension.cs" />
     <Compile Include="FiniteDifference.cs" />
     <Compile Include="PascalTriangle.cs" />

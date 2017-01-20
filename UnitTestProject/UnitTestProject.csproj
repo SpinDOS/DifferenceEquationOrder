@@ -69,6 +69,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DifferenceExpressionEvaluatorTests.cs" />
     <Compile Include="FiniteDifferenceCreatingTests.cs" />
     <Compile Include="FiniteDifferenceOperationsTests.cs" />
     <Compile Include="FiniteDifferenceParsingTests.cs" />
