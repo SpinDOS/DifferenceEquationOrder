@@ -16,20 +16,15 @@ namespace DifferenceEquationOrder
         /// Evaluate an expression of FiniteDifferences
         /// </summary>
         /// <param name="s">A string containing an expression to evaluate</param>
-        /// <exception cref="ArgumentNullException">s does not contain any data</exception>
         /// <exception cref="FormatException">Invalid format of a expression. Message contains invalid part</exception>
         /// <exception cref="OverflowException">Format is valid but expression contains too large coefficients</exception>
         /// <returns>FiniteDifference that contains result of the expression</returns>
         public static FiniteDifference Evaluate(string s)
         {
             if (string.IsNullOrWhiteSpace(s))
-                throw new ArgumentNullException(nameof(s));
+                return null;
 
-            s = s.Trim();
-            // prepare leading sign for first summand
-            if (s[0] != '-' && s[0] != '+')
-                s = "+" + s;
-
+            // split expression for summands and evaluate each of them and sum them
             FiniteDifference result = null;
             foreach (var summand in GetSummands(s))
                 try
@@ -37,10 +32,10 @@ namespace DifferenceEquationOrder
                     result += EvaluateSummand(summand);
                 }
                 // on exception - provide info about summand
-                catch (FormatException)
-                { throw new FormatException(summand); }
-                catch (OverflowException)
-                { throw new OverflowException(summand); }
+                catch (FormatException e)
+                { throw new FormatException(summand.Trim(), e); }
+                catch (OverflowException e)
+                { throw new OverflowException(summand.Trim(), e); }
 
             return result;
         }
@@ -66,39 +61,57 @@ namespace DifferenceEquationOrder
         }
 
 
-        // handle one node - dif or k*dif
+        // handle one node - u or ku or k*u or dnu or
         private static FiniteDifference EvaluateSummand(string s)
         {
             // if no data - return nonFiniteDifference
             if (string.IsNullOrWhiteSpace(s))
                 return null;
 
-            // trim spaces
-            s = s.Trim().ToLower();
+            // trim spaces, change to lower and change , to .
+            s = s.Trim().ToLower().Replace(',', '.');
 
             // detect leading sign of the summand
-            int sign = s[0] == '-' ? -1: 1;
+            int sign = 1;
+            if (s[0] == '-' || s[0] == '+')
+            {
+                if (s[0] == '-')
+                    sign = -1;
+                // remove sign
+                s = s.Substring(1).TrimStart();
+            }
 
-            // remove sign
-            s = s.Substring(1).TrimStart();
+            // count leading digits
+            int coefficientLength = s.TakeWhile(ch => ch == '.' || char.IsDigit(ch)).Count();
+            if (coefficientLength == s.Length) // if only coefficient, no FiniteDifference
+                throw new FormatException("Input string was not in a correct format");
 
-            int iU = s.IndexOf('u');
-            if (iU < 0) // if no FiniteDifference at all
-                throw new FormatException();
-
-            int iMultiplication = s.IndexOf('*');
-            // if (no *) or (* is u(x+n*h))
-            if (iMultiplication < 0 || iMultiplication > iU) 
+            if (coefficientLength == 0) // of there is no coefficient - parse FiniteDifference
                 return sign * FiniteDifference.Parse(s);
+
+            if (s[coefficientLength - 1] == '.') // if coefficient end with . 
+                throw new FormatException("Input string was not in a correct format");
 
             // there is multiplication
 
-            // get coefficient and FiniteDifference strings
-            string left = s.Remove(iMultiplication).TrimEnd(),
-                right = s.Substring(iMultiplication + 1).TrimStart();
-            
-            // return multiplication
-            return sign * double.Parse(left) * FiniteDifference.Parse(right);
+            // get coefficient
+            string sCoefficient = s.Remove(coefficientLength);
+            // if coefficient contains multiple .'s
+            if (sCoefficient.Count(ch => ch == '.') > 1)
+                throw new FormatException("Input string was not in a correct format");
+
+            double k = double.Parse(sCoefficient);
+
+            // get FiniteDifference and *(if exists)
+            string rightPart = s.Substring(coefficientLength).TrimStart();
+            // remove * is exists
+            if (rightPart.StartsWith("*"))
+                rightPart = rightPart.Substring(1).TrimStart();
+
+            if (string.IsNullOrWhiteSpace(rightPart)) // if right part does not contain any data
+                throw new FormatException("Input string was not in a correct format");
+
+            return sign * k * FiniteDifference.Parse(rightPart);
         }
 
         // split expression string to collection of summands
