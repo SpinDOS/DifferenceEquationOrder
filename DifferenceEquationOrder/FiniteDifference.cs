@@ -50,7 +50,7 @@ namespace DifferenceEquationOrder
         public double this[int h]
         { // just access _coefficients with offset index
             get { return _coefficients[h - MinimumH]; }
-            set { _coefficients[h - MinimumH] = value; }
+            private set { _coefficients[h - MinimumH] = value; }
         }
 
         #endregion
