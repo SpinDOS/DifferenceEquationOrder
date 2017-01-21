@@ -123,6 +123,35 @@ namespace UnitTestProject
 
             try
             {
+                DifferenceExpressionEvaluator.Evaluate("-.d^5u(x-242h)+2,3.3 *  d u(x-4223h)   ");
+                Assert.True(false); // report error here
+            }
+            catch (FormatException e)
+            {
+                Assert.Equal("-.d^5u(x-242h)", e.Message);
+            }
+
+            try
+            {
+                DifferenceExpressionEvaluator.Evaluate("-.2d^5u(x-242h)+2,3.3 *  d u(x-4223h)   ");
+                Assert.True(false); // report error here
+            }
+            catch (FormatException e)
+            {
+                Assert.Equal("-.2d^5u(x-242h)", e.Message);
+            }
+            try
+            {
+                DifferenceExpressionEvaluator.Evaluate("-2.d^5u(x-242h)+2,3.3 *  d u(x-4223h)   ");
+                Assert.True(false); // report error here
+            }
+            catch (FormatException e)
+            {
+                Assert.Equal("-2.d^5u(x-242h)", e.Message);
+            }
+
+            try
+            {
                 DifferenceExpressionEvaluator.Evaluate("1   d^5u(x-242h)+2,3. *du(x-4223h)");
                 Assert.True(false); // report error here
             }

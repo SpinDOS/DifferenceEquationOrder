@@ -89,7 +89,7 @@ namespace DifferenceEquationOrder
             if (coefficientLength == 0) // of there is no coefficient - parse FiniteDifference
                 return sign * FiniteDifference.Parse(s);
 
-            if (s[coefficientLength - 1] == '.') // if coefficient end with . 
+            if (s[0] == '.' || s[coefficientLength - 1] == '.') // if coefficient starts or ends with . 
                 throw new FormatException("Input string was not in a correct format");
 
             // there is multiplication
